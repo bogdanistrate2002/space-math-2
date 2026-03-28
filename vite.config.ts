@@ -8,5 +8,6 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/__tests__/setup.ts',
     coverage: { provider: 'v8' },
+    pool: 'forks',
   },
 });
