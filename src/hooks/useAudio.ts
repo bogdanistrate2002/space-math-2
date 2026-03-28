@@ -89,10 +89,12 @@ export function useAudio(): AudioManager {
 
     void initHowler();
 
+    const howlsSnapshot = howls.current;
+    const bgSnapshot = bgRef.current;
     return () => {
       active = false;
-      howls.current.forEach((h) => h.unload());
-      bgRef.current?.unload();
+      howlsSnapshot.forEach((h) => h.unload());
+      bgSnapshot?.unload();
     };
   }, []);
 

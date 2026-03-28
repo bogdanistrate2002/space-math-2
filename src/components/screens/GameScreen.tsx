@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import type { UseGameStateReturn } from '../../hooks/useGameState';
 import type { AudioManager } from '../../types/audio';
 import type { UseConfettiReturn } from '../../hooks/useConfetti';
@@ -29,7 +29,13 @@ export default function GameScreen({
 }: GameScreenProps): JSX.Element {
   const { state, selectAnswer } = game;
   const { question, answerFeedback, selectedAnswer, lives, score, highScore, questionIndex, levelIndex } = state;
-  const [feedbackMessage, setFeedbackMessage] = useState<string>('');
+  // Mesajul de feedback — derivat din answerFeedback, stabil până la următoarea schimbare
+  const feedbackMessage = useMemo(() => {
+    if (answerFeedback === 'correct') return randomMessage(CORRECT_MESSAGES);
+    if (answerFeedback === 'wrong') return randomMessage(WRONG_MESSAGES);
+    return '';
+  }, [answerFeedback]);
+
   const prevPhase = useRef(state.phase);
 
   // Detectează tranziția la levelComplete și notifică părintele
@@ -40,15 +46,13 @@ export default function GameScreen({
     prevPhase.current = state.phase;
   }, [state.phase, onLevelComplete]);
 
-  // Reacționează la feedback audio + vizual
+  // Reacționează la feedback audio + vizual (fără setState — efecte externe pure)
   useEffect(() => {
     if (answerFeedback === 'correct') {
       audio.playSound('correct');
       confetti.fireConfetti();
-      setFeedbackMessage(randomMessage(CORRECT_MESSAGES));
     } else if (answerFeedback === 'wrong') {
       audio.playSound('wrong');
-      setFeedbackMessage(randomMessage(WRONG_MESSAGES));
     }
   }, [answerFeedback, audio, confetti]);
 
